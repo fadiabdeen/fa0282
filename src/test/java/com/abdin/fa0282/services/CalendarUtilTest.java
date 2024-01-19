@@ -54,7 +54,7 @@ public class CalendarUtilTest {
     @Test
     void testRound() {
 
-        double rounded =util.round(10.888, 2);
+        double rounded = CalendarUtil.round(10.888, 2);
         assertEquals(rounded, 10,89);
 
     }
