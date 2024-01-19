@@ -18,7 +18,7 @@ public class ProcessComponent {
 
     ToolsDao dao = new ToolsDao();
 
-    public RentalAgreement process(Checkout checkout){
+    public RentalAgreement process(Checkout checkout) throws Exception{
 
         try{
 
@@ -58,9 +58,8 @@ public class ProcessComponent {
 
         } catch(Exception e){
             System.out.println(e.getMessage());
+            throw e;
         }
-
-        return null;
 
     }
 

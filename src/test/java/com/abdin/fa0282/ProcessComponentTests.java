@@ -2,7 +2,6 @@ package com.abdin.fa0282;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,37 +11,58 @@ import com.abdin.fa0282.models.RentalAgreement;
 @SpringBootTest
 public class ProcessComponentTests {
 
+
     ProcessComponent processComponent = new ProcessComponent();
 
-    //Renting 0 days would not allow it to continue. 
+
     // Charge Holiday and Charge weekend
+
+    @Test
+    void processWholeWeekNoHolidays() throws Exception{
+        Checkout checkout = Checkout.getInstance("08/01/23", 10, "LADW", 40);
+        RentalAgreement agreement= processComponent.process(checkout);
+        assertEquals(agreement.getChargeDays(), 10);
+    }
 
     // No Charge Holiday 
         //Labor Day 
+
+
+        @Test
+        void processNoChargeLaborDay() throws Exception{
+            Checkout checkout = Checkout.getInstance("09/01/24", 10, "LADW", 40);
+            RentalAgreement agreement= processComponent.process(checkout);
+            assertEquals(agreement.getChargeDays(), 9);
+        }
+
         //Independence Day
         //Independence Day Holiday out of range 
 
-    // No Charge Weekend 
-
-    // No Charge Holiday and No Charge Weekend 
-
-    //Invalid Number of days
-    //Invalid Discount 
-    // Discount 
-    // No Discount 
-
-    // Test Calculations
-        //Discount
-        //Final after discount 
-
-
-
-
-
-
+        @Test
+        void processNoChargeIndependenceDayInWeekday() throws Exception{
+            Checkout checkout = Checkout.getInstance("07/01/24", 10, "LADW", 40);
+            RentalAgreement agreement= processComponent.process(checkout);
+            assertEquals(agreement.getChargeDays(), 9);
+        }
     
+        @Test
+        void processNoChargeIndependenceDayInWeekend() throws Exception{
+            Checkout checkout = Checkout.getInstance("07/01/20", 10, "LADW", 40);
+            RentalAgreement agreement= processComponent.process(checkout);
+            assertEquals(agreement.getChargeDays(), 9);
+        }
+    
+        @Test
+        void processNoChargeIndependenceDayInWeekendOutOfRange() throws Exception{
+            Checkout checkout = Checkout.getInstance("07/04/20", 10, "LADW", 40);
+            RentalAgreement agreement= processComponent.process(checkout);
+            assertEquals(agreement.getChargeDays(), 10);
+        }
+    
+
+    // No Charge Weekend     
     @Test
-    void processNoChargeWeekendNoHolidays(){
+    void processNoChargeWeekendNoHolidays() throws Exception{
 
         Checkout checkout = Checkout.getInstance("01/14/24", 10, "CHNS", 40);
         RentalAgreement agreement= processComponent.process(checkout);
@@ -50,39 +70,58 @@ public class ProcessComponentTests {
 
     }
 
+    //Invalid Number of days
+
     @Test
-    void processWholeWeekNoHolidays(){
-        Checkout checkout = Checkout.getInstance("09/01/23", 10, "LADW", 40);
-        RentalAgreement agreement= processComponent.process(checkout);
-        assertEquals(agreement.getChargeDays(), 10);
+    void processInvalidNumberOfDays() throws Exception {
+        Checkout checkout = Checkout.getInstance("08/01/23", -20, "LADW", 40);
+
+        try{
+            processComponent.process(checkout);
+        }
+        catch(Exception e){
+
+            assertEquals(e.getMessage(), "Rental Day Count must be greater than 1");
+
+        }
     }
 
 
-    
-    @Test
-    @Disabled
-    void processNoChargeIndependenceDayInWeekday(){
-        Checkout checkout = Checkout.getInstance("07/01/24", 10, "LADW", 40);
-        RentalAgreement agreement= processComponent.process(checkout);
-        assertEquals(agreement.getChargeDays(), 9);
-    }
+    //Renting 0 days would not allow it to continue. 
 
     @Test
-    @Disabled
-    void processNoChargeIndependenceDayInWeekend(){
-        Checkout checkout = Checkout.getInstance("07/01/20", 10, "LADW", 40);
-        RentalAgreement agreement= processComponent.process(checkout);
-        assertEquals(agreement.getChargeDays(), 9);
+    void processZeroDaysRental() throws Exception {
+        Checkout checkout = Checkout.getInstance("08/01/23", 0, "LADW", 40);
+
+        try{
+            processComponent.process(checkout);
+        }
+        catch(Exception e){
+
+            assertEquals(e.getMessage(), "Rental Day Count must be greater than 1");
+
+        }
+        
     }
 
+    //Invalid Discount 
     @Test
-    @Disabled
-    void processNoChargeIndependenceDayInWeekendOutOfRange(){
-        Checkout checkout = Checkout.getInstance("07/04/20", 10, "LADW", 40);
-        RentalAgreement agreement= processComponent.process(checkout);
-        assertEquals(agreement.getChargeDays(), 10);
-    }
+    void processInvalidDiscount() throws Exception {
+        Checkout checkout = Checkout.getInstance("08/01/23", 0, "LADW", 3000);
 
-    
+        try{
+            processComponent.process(checkout);
+        }
+        catch(Exception e){
+
+            assertEquals(e.getMessage(), "Discount must be between 0-100");
+
+        }
+    }        
+
+    // Discount 
+    // No Discount 
+
+
 
 }
